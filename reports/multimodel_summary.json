@@ -1,0 +1,62 @@
+{
+  "Heuristic": {
+    "name": "Heuristic",
+    "file": "results.csv",
+    "algo": "\u2014",
+    "broken": 0,
+    "healed": 0,
+    "failed": 0,
+    "hsr": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "available": true
+  },
+  "ML (GB)": {
+    "name": "ML (GB)",
+    "file": "results_ml.csv",
+    "algo": "Gradient Boosting",
+    "broken": 0,
+    "healed": 0,
+    "failed": 0,
+    "hsr": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "available": true
+  },
+  "Hybrid (GB)": {
+    "name": "Hybrid (GB)",
+    "file": "results_hybrid.csv",
+    "algo": "Gradient Boosting",
+    "broken": 0,
+    "healed": 0,
+    "failed": 0,
+    "hsr": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "available": true
+  },
+  "ML (XGB)": {
+    "name": "ML (XGB)",
+    "file": "results_ml_xgb.csv",
+    "algo": "XGBoost",
+    "broken": 0,
+    "healed": 0,
+    "failed": 0,
+    "hsr": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "available": true
+  },
+  "Hybrid (XGB)": {
+    "name": "Hybrid (XGB)",
+    "file": "results_hybrid_xgb.csv",
+    "algo": "XGBoost",
+    "broken": 0,
+    "healed": 0,
+    "failed": 0,
+    "hsr": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "available": true
+  }
+}

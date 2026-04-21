@@ -1,0 +1,14 @@
+body{
+font-family: Arial;
+margin:40px;
+}
+
+.product{
+border:1px solid #ccc;
+padding:10px;
+margin:10px;
+}
+
+button{
+padding:8px;
+}

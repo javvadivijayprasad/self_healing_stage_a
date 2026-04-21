@@ -1,0 +1,17 @@
+{
+  "test_case": "cart_page_test",
+  "page_name": "cart",
+  "element_name": "cart_item1",
+  "locator_type": "id",
+  "locator_value": "cart-item1",
+  "tag": "p",
+  "text": "Backpack",
+  "element_id": "cart-item1",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "body",
+  "dom_depth": 2
+}

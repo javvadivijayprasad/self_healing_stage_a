@@ -1,0 +1,11 @@
+version,n_runs,mean_hsr,ci_lo,ci_hi,scope,a,b,mean_a,mean_b,p_perm,cliffs_delta,magnitude
+version_2,50.0,0.7,0.7,0.7,per_version,,,,,,,
+version_3,50.0,0.6667,0.6667,0.6667,per_version,,,,,,,
+version_4,50.0,0.5833,0.5833,0.5833,per_version,,,,,,,
+version_5,50.0,0.6429,0.6429,0.6429,per_version,,,,,,,
+,,,,,pairwise,version_2,version_3,0.7,0.6667,0.0002,1.0,large
+,,,,,pairwise,version_2,version_4,0.7,0.5833,0.0002,1.0,large
+,,,,,pairwise,version_2,version_5,0.7,0.6429,0.0002,1.0,large
+,,,,,pairwise,version_3,version_4,0.6667,0.5833,0.0002,1.0,large
+,,,,,pairwise,version_3,version_5,0.6667,0.6429,0.0002,1.0,large
+,,,,,pairwise,version_4,version_5,0.5833,0.6429,0.0002,-1.0,large

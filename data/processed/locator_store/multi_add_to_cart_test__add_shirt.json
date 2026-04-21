@@ -1,0 +1,17 @@
+{
+  "test_case": "multi_add_to_cart_test",
+  "page_name": "inventory",
+  "element_name": "add_shirt",
+  "locator_type": "id",
+  "locator_value": "add-shirt",
+  "tag": "button",
+  "text": "Add to cart",
+  "element_id": "add-shirt",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "div",
+  "dom_depth": 4
+}

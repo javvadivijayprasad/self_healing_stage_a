@@ -1,0 +1,8 @@
+mutation_class,real_world_pattern,reference
+id_change,Identifier renaming during refactor (e.g. kebab- to camel-case),hammoudi2016; stocco2018
+attribute_removed,Inline attribute dropped when styling migrates to CSS classes,hammoudi2016
+dom_wrap,Component re-parenting (wrapping in a container div),yandrapally2014; ricca2019
+element_reorder,Sibling reordering driven by responsive-layout redesigns,yandrapally2014
+class_change,CSS-class renaming when design system version changes,hammoudi2016; stocco2018
+text_change,Copy edits and i18n label updates,ricca2019
+placeholder_change,Form placeholder rewording during UX polish passes,hammoudi2016

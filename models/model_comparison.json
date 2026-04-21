@@ -1,0 +1,75 @@
+{
+  "gradient_boosting": {
+    "algorithm": "gradient_boosting",
+    "label": "Gradient Boosting",
+    "auc": 0.999342,
+    "f1_macro": 0.976843,
+    "precision": 0.961415,
+    "recall": 0.964516,
+    "cv_auc_mean": 0.99948,
+    "cv_auc_std": 0.0,
+    "training_time_sec": 0.49,
+    "training_instances": 6200,
+    "test_instances": 1550,
+    "confusion_matrix": {
+      "TN": 1228,
+      "FP": 12,
+      "FN": 11,
+      "TP": 299
+    },
+    "feature_importance": {
+      "tag_match": 0.0871,
+      "text_similarity": 0.3796,
+      "attribute_similarity": 0.0196,
+      "class_similarity": 0.0,
+      "parent_similarity": 0.142,
+      "depth_similarity": 0.006,
+      "id_similarity": 0.2063,
+      "name_similarity": 0.0,
+      "placeholder_similarity": 0.1554,
+      "aria_label_similarity": 0.0,
+      "type_attr_match": 0.0,
+      "sibling_count_ratio": 0.0041,
+      "multi_attr_match_count": 0.0
+    },
+    "model_path": "E:\\EB1A_Research\\self_healing_stage_a\\self_healing_stage_a\\models\\healing_ranker_gb.pkl"
+  },
+  "xgboost": {
+    "algorithm": "xgboost",
+    "label": "XGBoost",
+    "auc": 0.999399,
+    "f1_macro": 0.977209,
+    "precision": 1.0,
+    "recall": 0.929032,
+    "cv_auc_mean": 0.99948,
+    "cv_auc_std": 0.0,
+    "training_time_sec": 0.14,
+    "training_instances": 6200,
+    "test_instances": 1550,
+    "confusion_matrix": {
+      "TN": 1240,
+      "FP": 0,
+      "FN": 22,
+      "TP": 288
+    },
+    "feature_importance": {
+      "tag_match": 0.132,
+      "text_similarity": 0.0701,
+      "attribute_similarity": 0.0302,
+      "class_similarity": 0.0,
+      "parent_similarity": 0.1299,
+      "depth_similarity": 0.0533,
+      "id_similarity": 0.0716,
+      "name_similarity": 0.0,
+      "placeholder_similarity": 0.0623,
+      "aria_label_similarity": 0.0,
+      "type_attr_match": 0.0,
+      "sibling_count_ratio": 0.0263,
+      "multi_attr_match_count": 0.4243
+    },
+    "model_path": "E:\\EB1A_Research\\self_healing_stage_a\\self_healing_stage_a\\models\\healing_ranker_xgb.pkl"
+  },
+  "winner": "xgboost",
+  "auc_delta": 5.7e-05,
+  "f1_delta": 0.000366
+}

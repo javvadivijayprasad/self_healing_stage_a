@@ -1,0 +1,17 @@
+\begin{table}[H]
+\centering
+\caption{Per-Page Mutation Density vs. Healing Success Rate (Wilson 95\% CI)}
+\label{tab:mutation_density}
+\begin{tabular}{lcccc}
+\toprule
+Page & Mutations & Broken & HSR & 95\% CI \\
+\midrule
+index.html & 6 & 600 & 50.0\% & [46.0, 54.0] \\
+login.html & 6 & 200 & 0.0\% & [0.0, 1.9] \\
+checkout.html & 8 & 400 & 75.0\% & [70.5, 79.0] \\
+cart.html & 8 & 300 & 66.7\% & [61.2, 71.8] \\
+inventory.html & 24 & 900 & 83.3\% & [80.8, 85.6] \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}\\\footnotesize Pearson $r=0.56$ between mutation count and HSR.
+\end{table}

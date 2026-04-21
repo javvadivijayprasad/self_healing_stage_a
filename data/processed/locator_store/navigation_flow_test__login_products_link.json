@@ -1,0 +1,17 @@
+{
+  "test_case": "navigation_flow_test",
+  "page_name": "login",
+  "element_name": "login_products_link",
+  "locator_type": "id",
+  "locator_value": "login-products-link",
+  "tag": "a",
+  "text": "View Products",
+  "element_id": "login-products-link",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "body",
+  "dom_depth": 2
+}

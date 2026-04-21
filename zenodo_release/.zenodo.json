@@ -1,0 +1,59 @@
+{
+  "title": "Self-Healing Test Automation Dataset: 11,100 Experiment Rows with DOM-Similarity ML Models",
+  "upload_type": "dataset",
+  "description": "<p>A research dataset supporting an empirical study on AI-driven self-healing test automation. Contains 11,100 experiment rows from nine Selenium test suites across five progressively mutated UI versions under five ranking configurations (heuristic, ML-Gradient Boosting, ML-XGBoost, hybrid-GB, hybrid-XGB).</p><p><strong>Key contents:</strong> 2,400+ broken locator events per mode, 13,000+ per-candidate feature records with 13 DOM similarity features, trained Gradient Boosting (AUC=0.9993) and XGBoost (AUC=0.9994) classifiers, and full experiment CSVs. The hybrid ensemble achieves 68.63% healing success rate, a statistically significant +4.05 pp improvement over the heuristic baseline. Both algorithms converge to identical hybrid HSR, demonstrating algorithm-agnostic robustness.</p>",
+  "creators": [
+    {
+      "name": "Javvadi, Vijay P.",
+      "affiliation": "Independent Researcher",
+      "orcid": ""
+    }
+  ],
+  "keywords": [
+    "self-healing test automation",
+    "UI testing",
+    "Selenium",
+    "DOM similarity",
+    "machine learning",
+    "gradient boosting",
+    "XGBoost",
+    "hybrid ranking",
+    "locator recovery",
+    "mutation testing",
+    "software quality",
+    "empirical software engineering"
+  ],
+  "license": "cc-by-4.0",
+  "access_right": "open",
+  "language": "eng",
+  "version": "1.0.0",
+  "publication_date": "2026-04-21",
+  "notes": "Part of a seven-paper AI-driven quality engineering research series by Vijay P. Javvadi. Papers 1-6 (defect prediction) have a separate dataset at DOI 10.5281/zenodo.19682733.",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/javvadivijayprasad/self-healing-test-automation",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.5281/zenodo.19682733",
+      "relation": "isPartOf",
+      "scheme": "doi"
+    }
+  ],
+  "communities": [
+    { "identifier": "zenodo" }
+  ],
+  "subjects": [
+    {
+      "term": "Software Engineering",
+      "identifier": "https://id.loc.gov/authorities/subjects/sh85124451",
+      "scheme": "url"
+    },
+    {
+      "term": "Machine Learning",
+      "identifier": "https://id.loc.gov/authorities/subjects/sh85079741",
+      "scheme": "url"
+    }
+  ]
+}

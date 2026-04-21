@@ -1,0 +1,17 @@
+{
+  "test_case": "checkout_form_test",
+  "page_name": "checkout",
+  "element_name": "finish_button",
+  "locator_type": "id",
+  "locator_value": "finish-button",
+  "tag": "button",
+  "text": "Finish Order",
+  "element_id": "finish-button",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "body",
+  "dom_depth": 2
+}

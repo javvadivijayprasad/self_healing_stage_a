@@ -1,0 +1,8 @@
+mutation_type,mutation_count,healed,failures,attempts,recovery_rate
+id_change,18,1250,200,1450,0.8621
+attribute_removed,14,300,650,950,0.3158
+dom_wrap,9,0,0,0,0.0
+text_change,5,0,0,0,0.0
+element_reorder,4,0,0,0,0.0
+class_change,1,0,0,0,0.0
+placeholder_change,1,0,0,0,0.0

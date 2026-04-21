@@ -1,0 +1,17 @@
+{
+  "test_case": "checkout_form_test",
+  "page_name": "checkout",
+  "element_name": "postal_code",
+  "locator_type": "id",
+  "locator_value": "postal-code",
+  "tag": "input",
+  "text": "",
+  "element_id": "postal-code",
+  "name": "",
+  "class_name": "",
+  "placeholder": "Postal Code",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "body",
+  "dom_depth": 2
+}

@@ -1,0 +1,18 @@
+\begin{table}[H]
+\centering
+\caption{Mutation Realism Audit: Injected Mutation Classes Mapped to Real-World UI Change Patterns Documented in Prior Work}
+\label{tab:mutation_realism}
+\begin{tabular}{p{0.23\columnwidth}p{0.50\columnwidth}p{0.18\columnwidth}}
+\toprule
+Mutation class & Real-world change pattern & Reference \\
+\midrule
+id\_change & Identifier renaming during refactor (e.g. kebab- to camel-case) & \cite{hammoudi2016}, \cite{stocco2018} \\
+attribute\_removed & Inline attribute dropped when styling migrates to CSS classes & \cite{hammoudi2016} \\
+dom\_wrap & Component re-parenting (wrapping in a container div) & \cite{yandrapally2014}, \cite{ricca2019} \\
+element\_reorder & Sibling reordering driven by responsive-layout redesigns & \cite{yandrapally2014} \\
+class\_change & CSS-class renaming when design system version changes & \cite{hammoudi2016}, \cite{stocco2018} \\
+text\_change & Copy edits and i18n label updates & \cite{ricca2019} \\
+placeholder\_change & Form placeholder rewording during UX polish passes & \cite{hammoudi2016} \\
+\bottomrule
+\end{tabular}
+\end{table}

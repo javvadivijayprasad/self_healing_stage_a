@@ -1,0 +1,6 @@
+page,mutations,broken_events,healed,hsr,ci_lo,ci_hi
+index.html,6,600,300,0.5,0.4601,0.5399
+login.html,6,200,0,0.0,0.0,0.0188
+checkout.html,8,400,300,0.75,0.7053,0.7899
+cart.html,8,300,200,0.6667,0.6115,0.7176
+inventory.html,24,900,750,0.8333,0.8076,0.8563

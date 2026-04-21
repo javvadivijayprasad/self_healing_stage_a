@@ -1,0 +1,10 @@
+MAINTENANCE COST MODEL
+============================================================
+broken events (healing opportunities): 2400
+healed: 1550    unresolved: 850
+
+Per-locator repair time assumptions follow published estimates:
+  10-20 min per locator (Hammoudi 2016; Stocco 2018).
+
+At 10 min/locator: 258.3 engineer-hours avoided, 141.7 residual hours, 64.6% of total maintenance cost eliminated.
+At 20 min/locator: 516.7 engineer-hours avoided, 283.3 residual hours, 64.6% of total maintenance cost eliminated.

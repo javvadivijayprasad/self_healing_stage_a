@@ -1,0 +1,17 @@
+{
+  "test_case": "login_test",
+  "page_name": "login",
+  "element_name": "username_input",
+  "locator_type": "id",
+  "locator_value": "username-input",
+  "tag": "input",
+  "text": "",
+  "element_id": "username-input",
+  "name": "",
+  "class_name": "",
+  "placeholder": "Username",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "form",
+  "dom_depth": 3
+}

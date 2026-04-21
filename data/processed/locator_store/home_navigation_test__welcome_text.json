@@ -1,0 +1,17 @@
+{
+  "test_case": "home_navigation_test",
+  "page_name": "index",
+  "element_name": "welcome_text",
+  "locator_type": "id",
+  "locator_value": "welcome-text",
+  "tag": "p",
+  "text": "Welcome to the testing application",
+  "element_id": "welcome-text",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "body",
+  "dom_depth": 2
+}

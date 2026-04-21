@@ -1,0 +1,57 @@
+cff-version: 1.2.0
+message: "If you use this dataset, please cite it as below."
+type: dataset
+title: "Self-Healing Test Automation Dataset: 11,100 Experiment Rows with DOM-Similarity ML Models"
+version: 1.0.0
+date-released: "2026-04-21"
+doi: "10.5281/zenodo.XXXXXXX"
+url: "https://doi.org/10.5281/zenodo.XXXXXXX"
+repository-code: "https://github.com/javvadivijayprasad/self-healing-test-automation"
+license: CC-BY-4.0
+abstract: >
+  Research dataset for AI-driven self-healing test automation. Contains
+  11,100 experiment rows from nine Selenium test suites across five
+  progressively mutated UI versions under five ranking configurations
+  (heuristic, ML-GB, ML-XGB, hybrid-GB, hybrid-XGB). Includes trained
+  Gradient Boosting (AUC=0.9993) and XGBoost (AUC=0.9994) classifiers.
+  The hybrid ensemble achieves 68.63% HSR, and both algorithms converge
+  to identical hybrid performance, demonstrating algorithm-agnostic
+  robustness. Part of a seven-paper quality engineering research series.
+
+authors:
+  - family-names: "Javvadi"
+    given-names: "Vijay P."
+    email: "research@vijayjavvadiresearch.ai"
+    affiliation: "Independent Researcher"
+
+keywords:
+  - self-healing test automation
+  - UI testing
+  - Selenium
+  - DOM similarity
+  - machine learning
+  - gradient boosting
+  - XGBoost
+  - hybrid ranking
+  - locator recovery
+  - mutation testing
+
+references:
+  - type: article
+    title: >
+      AI-Driven Self-Healing Test Automation: A DOM-Similarity and
+      Machine-Learning Framework for Resilient Web UI Regression Testing
+    authors:
+      - family-names: "Javvadi"
+        given-names: "Vijay P."
+    year: 2026
+    notes: "Paper 7 of a seven-paper quality engineering research series"
+
+  - type: dataset
+    title: >
+      Software Defect Prediction Dataset: 284,676 Code File Instances
+    authors:
+      - family-names: "Javvadi"
+        given-names: "Vijay P."
+    doi: "10.5281/zenodo.19682733"
+    notes: "Companion dataset for Papers 1-6 in the same research series"

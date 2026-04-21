@@ -1,0 +1,17 @@
+{
+  "test_case": "products_listing_test",
+  "page_name": "inventory",
+  "element_name": "product_bike",
+  "locator_type": "id",
+  "locator_value": "product-bike",
+  "tag": "p",
+  "text": "Bike Light",
+  "element_id": "product-bike",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "div",
+  "dom_depth": 3
+}

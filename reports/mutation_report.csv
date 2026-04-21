@@ -1,0 +1,53 @@
+page,mutation_type,element,old_value,new_value
+cart.html,id_change,h2,cart-title,cart-title-v
+checkout.html,id_change,input,postal-code,postal-code-v
+checkout.html,id_change,input,first-name,first-name-v
+checkout.html,id_change,input,last-name,last-name-v
+index.html,attribute_removed,a,nav-login,removed
+index.html,attribute_removed,p,welcome-text,removed
+inventory.html,id_change,p,product-bike,product-bike-v
+inventory.html,id_change,button,add-backpack,add-backpack-v
+inventory.html,dom_wrap,div.product,div.product,section.product-wrapper > div.product
+inventory.html,dom_wrap,div.product,div.product,section.product-wrapper > div.product
+inventory.html,dom_wrap,div.product,div.product,section.product-wrapper > div.product
+inventory.html,element_reorder,div.product,original order,random order
+login.html,attribute_removed,input,password-input,removed
+login.html,attribute_removed,input,username-input,removed
+login.html,attribute_removed,button,login-button,removed
+cart.html,id_change,a,checkout-link,checkout-link-v
+cart.html,id_change,p,cart-item1,cart-item1-v
+checkout.html,placeholder_change,input,Postal Code,ZIP Code
+checkout.html,text_change,h2,Checkout,Proceed
+index.html,attribute_removed,a,nav-cart,removed
+inventory.html,id_change,p,product-bike-v,product-bike-v-v
+inventory.html,class_change,div,product,ui-v2
+inventory.html,attribute_removed,h2,inventory-title,removed
+inventory.html,dom_wrap,div.product,div.product,section.product-wrapper > div.product
+inventory.html,dom_wrap,div.product,div.product,section.product-wrapper > div.product
+inventory.html,element_reorder,div.product,original order,random order
+cart.html,attribute_removed,h2,cart-title-v,removed
+cart.html,text_change,a,Checkout,Proceed
+checkout.html,id_change,button,finish-button,finish-button-v
+checkout.html,attribute_removed,input,first-name-v,removed
+index.html,text_change,a,Products,Catalog
+index.html,id_change,h1,site-title,site-title-v
+inventory.html,attribute_removed,button,add-bike,removed
+inventory.html,id_change,button,add-shirt,add-shirt-v
+inventory.html,dom_wrap,div.product,div.product,section.product-wrapper > div.product
+inventory.html,dom_wrap,div.product,div.product,section.product-wrapper > div.product
+inventory.html,element_reorder,div.product,original order,random order
+login.html,attribute_removed,a,login-products-link,removed
+login.html,text_change,button,Login,Sign In
+cart.html,id_change,a,checkout-link-v,checkout-link-v-v
+cart.html,attribute_removed,p,cart-item1-v,removed
+cart.html,id_change,p,cart-item2,cart-item2-v
+checkout.html,attribute_removed,button,finish-button-v,removed
+index.html,text_change,a,Login,Sign In
+inventory.html,id_change,a,shopping_cart_link,shopping_cart_link-v
+inventory.html,id_change,p,product-backpack,product-backpack-v
+inventory.html,id_change,button,add-backpack-v,add-backpack-v-v
+inventory.html,id_change,p,product-shirt,product-shirt-v
+inventory.html,dom_wrap,div.product,div.product,section.product-wrapper > div.product
+inventory.html,dom_wrap,div.product,div.product,section.product-wrapper > div.product
+inventory.html,element_reorder,div.product,original order,random order
+login.html,attribute_removed,h2,login-title,removed

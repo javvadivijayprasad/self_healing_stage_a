@@ -1,0 +1,2 @@
+total_experiment_rows,baseline_steps,broken_locators,healed_locators,failed_healings,healing_success_rate,locator_recovery_accuracy,false_healing_rate
+1600,950,2400,1550,850,0.6458,0.6458,0.3542

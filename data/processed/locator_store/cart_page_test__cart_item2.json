@@ -1,0 +1,17 @@
+{
+  "test_case": "cart_page_test",
+  "page_name": "cart",
+  "element_name": "cart_item2",
+  "locator_type": "id",
+  "locator_value": "cart-item2",
+  "tag": "p",
+  "text": "Bike Light",
+  "element_id": "cart-item2",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "body",
+  "dom_depth": 2
+}

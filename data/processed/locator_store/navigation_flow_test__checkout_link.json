@@ -1,0 +1,17 @@
+{
+  "test_case": "navigation_flow_test",
+  "page_name": "cart",
+  "element_name": "checkout_link",
+  "locator_type": "id",
+  "locator_value": "checkout-link",
+  "tag": "a",
+  "text": "Checkout",
+  "element_id": "checkout-link",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "body",
+  "dom_depth": 2
+}

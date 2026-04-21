@@ -1,0 +1,17 @@
+{
+  "test_case": "checkout_form_test",
+  "page_name": "checkout",
+  "element_name": "checkout_title",
+  "locator_type": "id",
+  "locator_value": "checkout-title",
+  "tag": "h2",
+  "text": "Checkout",
+  "element_id": "checkout-title",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "body",
+  "dom_depth": 2
+}

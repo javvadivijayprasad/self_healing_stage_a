@@ -1,0 +1,17 @@
+{
+  "test_case": "products_listing_test",
+  "page_name": "inventory",
+  "element_name": "inventory_title",
+  "locator_type": "id",
+  "locator_value": "inventory-title",
+  "tag": "h2",
+  "text": "Product Inventory",
+  "element_id": "inventory-title",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "body",
+  "dom_depth": 2
+}

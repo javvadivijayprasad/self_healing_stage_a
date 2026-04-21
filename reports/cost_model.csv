@@ -1,0 +1,3 @@
+per_locator_min,broken_events,healed_events,failed_events,avoided_engineer_hours,residual_engineer_hours,total_without_framework_hours,fraction_avoided
+10,2400,1550,850,258.3,141.7,400.0,0.6458
+20,2400,1550,850,516.7,283.3,800.0,0.6458

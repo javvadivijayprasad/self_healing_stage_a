@@ -1,0 +1,17 @@
+{
+  "test_case": "home_navigation_test",
+  "page_name": "index",
+  "element_name": "nav_cart",
+  "locator_type": "id",
+  "locator_value": "nav-cart",
+  "tag": "a",
+  "text": "Cart",
+  "element_id": "nav-cart",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "nav",
+  "dom_depth": 3
+}

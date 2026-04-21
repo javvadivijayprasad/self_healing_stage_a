@@ -1,0 +1,17 @@
+{
+  "test_case": "login_test",
+  "page_name": "login",
+  "element_name": "login_button",
+  "locator_type": "id",
+  "locator_value": "login-button",
+  "tag": "button",
+  "text": "Login",
+  "element_id": "login-button",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "form",
+  "dom_depth": 3
+}

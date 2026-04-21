@@ -1,0 +1,13 @@
+mode,ui_version,broken,healed,hsr,ci_lo,ci_hi
+heuristic,version_2,500,350,0.7,0.6584,0.7385
+heuristic,version_3,600,400,0.6667,0.628,0.7032
+heuristic,version_4,600,350,0.5833,0.5435,0.6221
+heuristic,version_5,700,450,0.6429,0.6067,0.6775
+ml,version_2,500,350,0.7,0.6584,0.7385
+ml,version_3,600,400,0.6667,0.628,0.7032
+ml,version_4,650,400,0.6154,0.5774,0.652
+ml,version_5,700,450,0.6429,0.6067,0.6775
+hybrid,version_2,500,350,0.7,0.6584,0.7385
+hybrid,version_3,600,400,0.6667,0.628,0.7032
+hybrid,version_4,750,550,0.7333,0.7006,0.7637
+hybrid,version_5,700,450,0.6429,0.

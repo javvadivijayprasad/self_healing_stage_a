@@ -1,0 +1,17 @@
+{
+  "test_case": "checkout_form_test",
+  "page_name": "checkout",
+  "element_name": "last_name",
+  "locator_type": "id",
+  "locator_value": "last-name",
+  "tag": "input",
+  "text": "",
+  "element_id": "last-name",
+  "name": "",
+  "class_name": "",
+  "placeholder": "Last Name",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "body",
+  "dom_depth": 2
+}

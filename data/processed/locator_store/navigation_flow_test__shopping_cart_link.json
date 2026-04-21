@@ -1,0 +1,17 @@
+{
+  "test_case": "navigation_flow_test",
+  "page_name": "inventory",
+  "element_name": "shopping_cart_link",
+  "locator_type": "id",
+  "locator_value": "shopping_cart_link",
+  "tag": "a",
+  "text": "Go to Cart",
+  "element_id": "shopping_cart_link",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "body",
+  "dom_depth": 2
+}

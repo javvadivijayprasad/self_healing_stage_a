@@ -1,0 +1,17 @@
+{
+  "test_case": "inventory_test",
+  "page_name": "inventory",
+  "element_name": "add_backpack_button",
+  "locator_type": "id",
+  "locator_value": "add-backpack",
+  "tag": "button",
+  "text": "Add to cart",
+  "element_id": "add-backpack",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "div",
+  "dom_depth": 3
+}

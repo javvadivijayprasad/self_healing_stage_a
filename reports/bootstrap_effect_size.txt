@@ -1,0 +1,19 @@
+BOOTSTRAP CI + PERMUTATION + CLIFF'S DELTA
+============================================================
+
+Per-run HSR (n=200):
+  mean=0.6482, bootstrap 95% CI [0.6422, 0.6540]
+
+Per-version bootstrap CIs:
+  version_2    mean=0.7000 [0.7000, 0.7000] (n_runs=50)
+  version_3    mean=0.6667 [0.6667, 0.6667] (n_runs=50)
+  version_4    mean=0.5833 [0.5833, 0.5833] (n_runs=50)
+  version_5    mean=0.6429 [0.6429, 0.6429] (n_runs=50)
+
+Pairwise permutation test + Cliff's delta:
+  version_2 vs version_3: mean_diff=-0.0333, p=0.0002, delta=+1.0000 (large)
+  version_2 vs version_4: mean_diff=-0.1167, p=0.0002, delta=+1.0000 (large)
+  version_2 vs version_5: mean_diff=-0.0571, p=0.0002, delta=+1.0000 (large)
+  version_3 vs version_4: mean_diff=-0.0834, p=0.0002, delta=+1.0000 (large)
+  version_3 vs version_5: mean_diff=-0.0238, p=0.0002, delta=+1.0000 (large)
+  version_4 vs version_5: mean_diff=+0.0596, p=0.0002, delta=-1.0000 (large)

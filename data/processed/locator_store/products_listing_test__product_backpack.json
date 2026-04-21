@@ -1,0 +1,17 @@
+{
+  "test_case": "products_listing_test",
+  "page_name": "inventory",
+  "element_name": "product_backpack",
+  "locator_type": "id",
+  "locator_value": "product-backpack",
+  "tag": "p",
+  "text": "Backpack",
+  "element_id": "product-backpack",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "div",
+  "dom_depth": 4
+}

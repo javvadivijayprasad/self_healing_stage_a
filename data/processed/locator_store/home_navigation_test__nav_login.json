@@ -1,0 +1,17 @@
+{
+  "test_case": "home_navigation_test",
+  "page_name": "index",
+  "element_name": "nav_login",
+  "locator_type": "id",
+  "locator_value": "nav-login",
+  "tag": "a",
+  "text": "Login",
+  "element_id": "nav-login",
+  "name": "",
+  "class_name": "",
+  "placeholder": "",
+  "aria_label": "",
+  "xpath_hint": "",
+  "parent_tag": "nav",
+  "dom_depth": 3
+}

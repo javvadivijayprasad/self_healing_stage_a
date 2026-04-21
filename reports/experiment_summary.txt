@@ -1,0 +1,11 @@
+SELF-HEALING LOCATOR EXPERIMENT SUMMARY
+==================================================
+
+total_experiment_rows: 1600
+baseline_steps: 950
+broken_locators: 2400
+healed_locators: 1550
+failed_healings: 850
+healing_success_rate: 0.6458
+locator_recovery_accuracy: 0.6458
+false_healing_rate: 0.3542
