@@ -1,4 +1,4 @@
 mode,label,total_steps,baseline_steps,broken,healed,failed,hsr,ci_lo,ci_hi,fhr
 heuristic,Heuristic,3350,950,2400,1550,850,0.6458,0.6265,0.6647,0.3542
 ml,ML (GB),3400,950,2450,1600,850,0.6531,0.634,0.6717,0.3469
-hybrid,Hybrid,3500,950,2550,1750,800,0.6863,0.668,0.704,0.31
+hybrid,Hybrid,3500,950,2550,1750,800,0.6863,0.668,0.704,0.3137

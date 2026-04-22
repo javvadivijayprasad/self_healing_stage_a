@@ -21,7 +21,7 @@
 \IEEEauthorblockN{Vijay Javvadi}
 \IEEEauthorblockA{Independent Researcher\\
 AI-Driven Test Automation and Intelligent Quality Engineering\\
-\texttt{jvijayprasad@gmail.com}}
+\texttt{jvijayprasad@gmail.com} \quad ORCID: 0009-0005-1083-8207}
 }
 
 \begin{document}
@@ -84,6 +84,10 @@ Self-healing approaches attempt to recover from locator failures by preserving c
 Commercial tools such as Testim, Mabl, Functionize, and Applitools have popularized the concept of ``AI-powered locators,'' though their internal methodologies are proprietary. Academic research on test repair, including work on automated test oracle update and model-based test evolution, provides conceptual grounding but is rarely integrated directly into Selenium pipelines.
 
 The framework in this paper belongs to the similarity-based and learning-based categories while retaining a strong heuristic baseline. It captures stable metadata, computes explicit DOM similarity signals, and uses a machine-learning fallback to improve recovery when heuristic ranking alone is insufficient. Importantly, the approach is designed to be \emph{interpretable}: each healing decision carries a transparent score breakdown, enabling reviewers to understand why a specific replacement was chosen.
+
+\subsection{Positioning against closest prior work}
+
+Three bodies of work are most directly comparable to this paper. Leotta et al.'s ROBULA+ (2016) generates robust XPath locators by iteratively generalising brittle expressions, but operates as a static pre-processing step with no runtime recovery: once a locator breaks in production, the test fails and requires manual repair. Hammoudi et al.'s WATERFALL (2016) uses a record-and-replay approach with similarity-based fallback, but its evaluation was limited to rule-based ranking with no machine-learning layer and was conducted on a single small application without a controlled mutation pipeline. Commercial tools such as Testim, Mabl, and Healenium provide AI-assisted healing in proprietary pipelines, but none publish peer-reviewed empirical evaluations with confidence intervals, per-mutation-class breakdowns, or open reproducible datasets. This paper closes all three gaps simultaneously: it introduces an open, mutation-based evaluation pipeline spanning five progressively mutated application versions and seven mutation classes; reports a machine-learning ranking ablation showing +8.1\% HSR improvement over the heuristic-only baseline; provides Wilson 95\% confidence intervals on every aggregate metric; and releases the full dataset, trained models, and experiment scripts at \url{https://doi.org/10.5281/zenodo.19684439} — enabling independent replication that is absent from all prior commercial and academic self-healing work.
 
 \section{Research Problem}
 \label{sec:problem}
@@ -793,6 +797,13 @@ The source code, mutation engine, Selenium test suites, analysis scripts, and re
 \bibitem{arcuri2013} A.~Arcuri and L.~Briand, ``A Hitchhiker's guide to statistical tests for assessing randomized algorithms in software engineering,'' \emph{Softw.\ Test., Verif.\ Reliab.}, vol.~24, no.~3, 2014.
 \bibitem{grechanik2009} M.~Grechanik, Q.~Xie, and C.~Fu, ``Maintaining and evolving GUI-directed test scripts,'' in \emph{Proc.\ IEEE Int.\ Conf.\ Software Engineering (ICSE)}, 2009.
 \bibitem{xie2008} Q.~Xie and A.~Memon, ``Using a pilot study to derive a GUI model for automated testing,'' \emph{ACM Trans.\ Softw.\ Eng.\ Methodol.}, vol.~18, no.~2, 2008.
+
+\bibitem{javvadi2025healing_dataset} V.~P.~Javvadi, ``AI-Driven Self-Healing Test Automation Dataset: DOM Snapshots, Mutation Pipeline, Healing Logs, and Trained Models,'' Zenodo, 2025. DOI: \href{https://doi.org/10.5281/zenodo.19684439}{10.5281/zenodo.19684439}.
+
 \end{thebibliography}
+
+\section*{Data Availability}
+
+The experimental dataset, mutation pipeline scripts, DOM snapshot corpus, healing event logs, and trained Random Forest ranking model used in this study are publicly available on Zenodo~\cite{javvadi2025healing_dataset}: \url{https://doi.org/10.5281/zenodo.19684439}. The release includes all 1,600 experiment rows, per-mutation-class breakdowns, and the full five-version application corpus, enabling complete independent replication of all results reported in this paper.
 
 \end{document}

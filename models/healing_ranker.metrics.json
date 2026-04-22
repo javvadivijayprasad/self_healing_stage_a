@@ -27,3 +27,9 @@
     "name_similarity": 0.0,
     "placeholder_similarity": 0.0623,
     "aria_label_similarity": 0.0,
+    "type_attr_match": 0.0,
+    "sibling_count_ratio": 0.0263,
+    "multi_attr_match_count": 0.4243
+  },
+  "model_path": "E:\\EB1A_Research\\self_healing_stage_a\\self_healing_stage_a\\models\\healing_ranker_xgb.pkl"
+}

@@ -4,8 +4,8 @@ type: dataset
 title: "Self-Healing Test Automation Dataset: 11,100 Experiment Rows with DOM-Similarity ML Models"
 version: 1.0.0
 date-released: "2026-04-21"
-doi: "10.5281/zenodo.XXXXXXX"
-url: "https://doi.org/10.5281/zenodo.XXXXXXX"
+doi: "10.5281/zenodo.19684439"
+url: "https://doi.org/10.5281/zenodo.19684439"
 repository-code: "https://github.com/javvadivijayprasad/self-healing-test-automation"
 license: CC-BY-4.0
 abstract: >
@@ -23,6 +23,7 @@ authors:
     given-names: "Vijay P."
     email: "research@vijayjavvadiresearch.ai"
     affiliation: "Independent Researcher"
+    orcid: "https://orcid.org/0009-0005-1083-8207"
 
 keywords:
   - self-healing test automation

@@ -282,8 +282,8 @@ If you use this dataset, please cite:
   year      = {2026},
   publisher = {Zenodo},
   version   = {1.0.0},
-  doi       = {10.5281/zenodo.XXXXXXX},
-  url       = {https://doi.org/10.5281/zenodo.XXXXXXX}
+  doi       = {10.5281/zenodo.19684439},
+  url       = {https://doi.org/10.5281/zenodo.19684439}
 }
 ```
 
