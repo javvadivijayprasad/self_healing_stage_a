@@ -1,0 +1,32 @@
+{
+  "auc": 0.9998,
+  "f1_macro": 0.9886,
+  "precision": 0.9832,
+  "recall": 0.9857,
+  "cv_auc_mean": 0.9998,
+  "cv_auc_std": 0.0003,
+  "training_instances": 9800,
+  "test_instances": 2450,
+  "threshold": 0.5,
+  "algorithm": "gradient_boosting",
+  "features": [
+    "tag_match",
+    "text_similarity",
+    "attribute_similarity",
+    "class_similarity",
+    "parent_similarity",
+    "depth_similarity",
+    "id_similarity",
+    "name_similarity",
+    "placeholder_similarity",
+    "aria_label_similarity",
+    "type_attr_match",
+    "sibling_count_ratio",
+    "multi_attr_match_count",
+    "candidate_text_actionable",
+    "candidate_in_form",
+    "candidate_attr_richness",
+    "original_attr_count"
+  ],
+  "model_path": "models\\healing_ranker_gb_v2.pkl"
+}

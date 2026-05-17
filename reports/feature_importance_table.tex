@@ -1,0 +1,34 @@
+\begin{table}[H]
+\centering
+\caption{Feature importance across three training generations of the gradient-boosting healing ranker. Phase~1 is the original 13-feature model trained on 7{,}750 experiment-log rows. Phase~2 augments the dataset with 1{,}500 name-heavy synthetic rows to lift \texttt{name\_similarity} from zero importance. Phase~3 (paper2 §7.3) extends the schema with four candidate-intrinsic features and adds 1{,}500 thin-original synthetic rows; the new schema enables the previously-unscoreable \texttt{type\_attr\_match} feature to dominate, and three of the four new candidate-intrinsic features acquire non-zero weight.}
+\label{tab:feature_importance_augmented}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Feature} & \textbf{Phase~1} & \textbf{Phase~2} & \textbf{Phase~3} \\
+                 & \textbf{(13 feats)} & \textbf{(13 feats)} & \textbf{(17 feats)} \\
+\midrule
+\multicolumn{4}{l}{\textit{Pairwise features (original-vs-candidate)}} \\
+\midrule
+tag\_match               & 0.0871 & 0.1405 & 0.1006 \\
+text\_similarity         & 0.3796 & 0.2282 & 0.1084 \\
+attribute\_similarity    & 0.0196 & 0.0169 & 0.0533 \\
+class\_similarity        & 0.0000 & 0.0001 & 0.0020 \\
+parent\_similarity       & 0.1420 & 0.1142 & 0.1058 \\
+depth\_similarity        & 0.0060 & 0.0032 & 0.0288 \\
+id\_similarity           & 0.2063 & 0.1376 & 0.0651 \\
+name\_similarity         & \textbf{0.0000} & \textbf{0.2936} & \textbf{0.0678} \\
+placeholder\_similarity  & 0.1554 & 0.0496 & 0.0206 \\
+aria\_label\_similarity  & 0.0000 & 0.0000 & 0.0000 \\
+type\_attr\_match        & \textbf{0.0000} & \textbf{0.0000} & \textbf{0.2669} \\
+sibling\_count\_ratio    & 0.0041 & 0.0026 & 0.0007 \\
+multi\_attr\_match\_count & 0.0000 & 0.0135 & 0.0184 \\
+\midrule
+\multicolumn{4}{l}{\textit{Phase~3 candidate-intrinsic features (paper2 §7.3)}} \\
+\midrule
+candidate\_text\_actionable & --- & --- & \textbf{0.0336} \\
+candidate\_in\_form         & --- & --- & \textbf{0.0281} \\
+candidate\_attr\_richness   & --- & --- & \textbf{0.0998} \\
+original\_attr\_count       & --- & --- & 0.0000 \\
+\bottomrule
+\end{tabular}
+\end{table}

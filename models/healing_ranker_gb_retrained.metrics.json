@@ -1,0 +1,28 @@
+{
+  "auc": 0.9997,
+  "f1_macro": 0.9857,
+  "precision": 0.9787,
+  "recall": 0.9787,
+  "cv_auc_mean": 0.9997,
+  "cv_auc_std": 0.0002,
+  "training_instances": 7400,
+  "test_instances": 1850,
+  "threshold": 0.5,
+  "algorithm": "gradient_boosting",
+  "features": [
+    "tag_match",
+    "text_similarity",
+    "attribute_similarity",
+    "class_similarity",
+    "parent_similarity",
+    "depth_similarity",
+    "id_similarity",
+    "name_similarity",
+    "placeholder_similarity",
+    "aria_label_similarity",
+    "type_attr_match",
+    "sibling_count_ratio",
+    "multi_attr_match_count"
+  ],
+  "model_path": "models\\healing_ranker_gb_retrained.pkl"
+}

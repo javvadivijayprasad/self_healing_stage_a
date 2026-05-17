@@ -48,6 +48,9 @@ FEATURE_COLUMNS = [
     "id_similarity", "name_similarity", "placeholder_similarity",
     "aria_label_similarity", "type_attr_match", "sibling_count_ratio",
     "multi_attr_match_count",
+    # Phase 3 candidate-intrinsic features (paper2 §7.3)
+    "candidate_text_actionable", "candidate_in_form",
+    "candidate_attr_richness", "original_attr_count",
 ]
 
 DECISION_COLUMNS = [

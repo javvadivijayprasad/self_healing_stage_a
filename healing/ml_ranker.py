@@ -39,7 +39,65 @@ FEATURE_COLUMNS = [
     "type_attr_match",
     "sibling_count_ratio",
     "multi_attr_match_count",
+    # ── Phase 3: candidate-intrinsic features (paper2 §7.3) ───────────────
+    # These features score the candidate's own properties WITHOUT requiring
+    # a corresponding value on the original locator side. They let the
+    # ranker handle "thin" originals (e.g., button[name="loginBtn"]) where
+    # the candidate has no name/id/placeholder/aria-label to match against.
+    "candidate_text_actionable",   # soft 0..1: candidate text matches login/submit/etc.
+    "candidate_in_form",           # binary: candidate sits inside a <form>
+    "candidate_attr_richness",     # 0..1: fraction of populated attrs on the candidate
+    "original_attr_count",         # 0..1: fraction of populated attrs on the original
 ]
+
+# ── Phase 3 helpers (paper2 §7.3) ─────────────────────────────────────────
+# Words that, when they are the entire visible text (or close to it) of a
+# candidate element, strongly suggest the candidate is a clickable action
+# button. The list is intentionally short and English-only; localisation
+# and richer NLP are scoped as future work.
+ACTIONABLE_TEXT_PATTERNS = (
+    "login", "log in", "sign in", "sign up", "signup", "register",
+    "submit", "save", "update", "create", "delete", "remove",
+    "ok", "cancel", "close", "next", "back", "continue", "proceed",
+    "confirm", "apply", "search", "go", "send", "post", "publish",
+    "yes", "no", "accept", "decline", "agree", "skip", "edit",
+)
+
+_CAND_ATTRS_FOR_RICHNESS = (
+    "element_id", "name", "class_name", "placeholder",
+    "aria_label", "type_attr", "value_attr",
+)
+_ORIG_ATTRS_FOR_COUNT = (
+    "element_id", "name", "class_name", "placeholder",
+    "aria_label", "type_attr", "text",
+)
+
+
+def _candidate_text_actionable_score(text: str) -> float:
+    """Soft 0..1 score: does the candidate's text match an actionable label?"""
+    if not text:
+        return 0.0
+    t = str(text).strip().lower()
+    if not t or len(t) > 50:
+        return 0.0
+    if t in ACTIONABLE_TEXT_PATTERNS:
+        return 1.0
+    for p in ACTIONABLE_TEXT_PATTERNS:
+        if p in t:
+            return 0.7
+    if any(w in ACTIONABLE_TEXT_PATTERNS for w in t.split()):
+        return 0.5
+    return 0.0
+
+
+def _populated_fraction(getter, attrs) -> float:
+    """Fraction of the listed attrs whose value is non-empty after strip()."""
+    populated = 0
+    for a in attrs:
+        v = getter(a, "")
+        if v and str(v).strip():
+            populated += 1
+    return populated / len(attrs)
 
 MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "healing_ranker.pkl"
 
@@ -113,6 +171,20 @@ def _compute_features(original: Any, candidate: Any) -> Dict[str, float]:
         if o_val and c_val and str(o_val).strip().lower() == str(c_val).strip().lower():
             match_count += 1
     features["multi_attr_match_count"] = float(match_count)
+
+    # ── Phase 3: candidate-intrinsic features (paper2 §7.3) ────────────────
+    features["candidate_text_actionable"] = _candidate_text_actionable_score(
+        _g(candidate, "text", "")
+    )
+    features["candidate_in_form"] = (
+        1.0 if (_g(candidate, "parent_tag") or "").lower() == "form" else 0.0
+    )
+    features["candidate_attr_richness"] = _populated_fraction(
+        lambda a, d: _g(candidate, a, d), _CAND_ATTRS_FOR_RICHNESS
+    )
+    features["original_attr_count"] = _populated_fraction(
+        lambda a, d: _g(original, a, d), _ORIG_ATTRS_FOR_COUNT
+    )
 
     return features
 

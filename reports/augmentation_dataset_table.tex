@@ -1,0 +1,18 @@
+\begin{table}[H]
+\centering
+\caption{Composition of the training set across the three generations. Each phase preserves all rows from the previous one; only synthetic appendices change. The Phase~3 dataset is a strict superset of Phase~2, which is itself a strict superset of Phase~1, so any improvement is attributable to the appended rows rather than to dataset re-curation.}
+\label{tab:augmentation_dataset}
+\begin{tabular}{lccc}
+\toprule
+Source & Positives & Negatives & Total \\
+\midrule
+Phase~1 — Original experiment log         & 1{,}550 & 6{,}200 & 7{,}750 \\
+Phase~2 — Synthetic name-heavy positives  & 800     & ---     & 800 \\
+Phase~2 — Synthetic name-decoy negatives  & ---     & 700     & 700 \\
+Phase~3 — Synthetic thin-original positives  & 1{,}500 & ---     & 1{,}500 \\
+Phase~3 — Synthetic thin-original negatives  & ---     & 1{,}500 & 1{,}500 \\
+\midrule
+\textbf{Phase~3 total} & \textbf{3{,}850} & \textbf{8{,}400} & \textbf{12{,}250} \\
+\bottomrule
+\end{tabular}
+\end{table}

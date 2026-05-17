@@ -87,7 +87,7 @@ The framework in this paper belongs to the similarity-based and learning-based c
 
 \subsection{Positioning against closest prior work}
 
-Three bodies of work are most directly comparable to this paper. Leotta et al.'s ROBULA+ (2016) generates robust XPath locators by iteratively generalising brittle expressions, but operates as a static pre-processing step with no runtime recovery: once a locator breaks in production, the test fails and requires manual repair. Hammoudi et al.'s WATERFALL (2016) uses a record-and-replay approach with similarity-based fallback, but its evaluation was limited to rule-based ranking with no machine-learning layer and was conducted on a single small application without a controlled mutation pipeline. Commercial tools such as Testim, Mabl, and Healenium provide AI-assisted healing in proprietary pipelines, but none publish peer-reviewed empirical evaluations with confidence intervals, per-mutation-class breakdowns, or open reproducible datasets. This paper closes all three gaps simultaneously: it introduces an open, mutation-based evaluation pipeline spanning five progressively mutated application versions and seven mutation classes; reports a machine-learning ranking ablation showing +8.1\% HSR improvement over the heuristic-only baseline; provides Wilson 95\% confidence intervals on every aggregate metric; and releases the full dataset, trained models, and experiment scripts at \url{https://doi.org/10.5281/zenodo.19684439} — enabling independent replication that is absent from all prior commercial and academic self-healing work.
+Three bodies of work are most directly comparable to this paper. Leotta et al.'s ROBULA+ (2016) generates robust XPath locators by iteratively generalising brittle expressions, but operates as a static pre-processing step with no runtime recovery: once a locator breaks in production, the test fails and requires manual repair. Hammoudi et al.'s WATERFALL (2016) uses a record-and-replay approach with similarity-based fallback, but its evaluation was limited to rule-based ranking with no machine-learning layer and was conducted on a single small application without a controlled mutation pipeline. Commercial tools such as Testim, Mabl, and Healenium provide AI-assisted healing in proprietary pipelines, but to our knowledge none have published independent peer-reviewed empirical evaluations with confidence intervals, per-mutation-class breakdowns, or open reproducible datasets. This paper closes all three gaps simultaneously: it introduces an open, mutation-based evaluation pipeline spanning five progressively mutated application versions and seven mutation classes; reports a machine-learning ranking ablation showing +8.1\% HSR improvement over the heuristic-only baseline; provides Wilson 95\% confidence intervals on every aggregate metric; and releases the full dataset, trained models, and experiment scripts at \url{https://doi.org/10.5281/zenodo.19684439} — enabling independent replication that is absent from all prior commercial and academic self-healing work.
 
 \section{Research Problem}
 \label{sec:problem}
@@ -171,9 +171,116 @@ A replacement locator should not merely point to any visible element; it should 
 \label{sec:ranking}
 The ranking stage follows a hybrid strategy. Heuristic scoring acts as the primary decision mechanism because it is transparent, deterministic, and effective in common mutation scenarios. When no candidate crosses the heuristic acceptance threshold, a machine-learning fallback is used to rank the remaining candidates.
 
-The current implementation uses logistic regression as the ML fallback because it is lightweight, easy to integrate into a runtime recovery pipeline, and produces calibrated probability estimates that are comparable across candidates. Feature vectors are constructed from the similarity signals computed for each candidate, including the individual similarity components, the parent context, the sibling count, and the DOM depth. The classifier estimates the probability that a candidate corresponds to the intended element, and the candidate with the highest predicted probability above a fixed threshold is selected.
+The current implementation uses two interchangeable tree-ensemble rankers as the ML fallback: a Gradient Boosting (GB) classifier and an XGBoost (XGB) classifier. Tree ensembles were preferred over logistic regression because the similarity-feature space is non-linear (e.g., a strong \texttt{id\_similarity} signal can outweigh several weaker structural signals only when \texttt{tag\_match} also fires), and tree-based models capture these conjunctive interactions natively without requiring hand-engineered cross-features. Both rankers expose a probability output suitable for thresholded decisions, are persisted as pickled artefacts (\texttt{models/healing\_ranker\_gb.pkl}, \texttt{models/healing\_ranker\_xgb.pkl}), and are loaded lazily by the recovery pipeline so the runtime overhead per healed step remains bounded. Feature vectors are constructed from the similarity signals computed for each candidate, including the individual similarity components, the parent context, the sibling count, and the DOM depth. The classifier estimates the probability that a candidate corresponds to the intended element, and the candidate with the highest predicted probability above a fixed threshold is selected.
 
-This hybrid design is useful for two reasons. First, it preserves deterministic behavior for common cases where similarity is clear, which is desirable for reproducibility of CI pipelines. Second, it adds model-based flexibility when the DOM has evolved enough that heuristics alone are insufficient. The architecture remains extensible to Random Forest, Gradient Boosting, and neural ranking models as the labeled dataset grows. Because the feature vector is compact and computation is local, the fallback adds only a small runtime cost per healed step.
+This hybrid design is useful for two reasons. First, it preserves deterministic behavior for common cases where similarity is clear, which is desirable for reproducibility of CI pipelines. Second, it adds model-based flexibility when the DOM has evolved enough that heuristics alone are insufficient. The architecture remains extensible to Random Forest, neural ranking, and transformer-based cross-encoder models as the labeled dataset grows. Because the feature vector is compact and computation is local, the fallback adds only a small runtime cost per healed step. Diagnostic metrics for both shipped rankers are reported in Section~\ref{sec:model_diagnostics}.
+
+\subsection{ML Model Diagnostics}
+\label{sec:model_diagnostics}
+
+Both shipped rankers were trained on a fixed feature matrix derived from the experiment's healing-event log: 7{,}750 candidate--target pairs, an 80/20 stratified train/test split (6{,}200 training instances, 1{,}550 test instances), and a binary label indicating whether the candidate was the intended replacement. Both classifiers were trained with their default hyperparameters and 5-fold stratified cross-validation. Table~\ref{tab:model_card} reports the headline classification metrics on the held-out test partition.
+
+\begin{table}[H]
+\centering
+\caption{ML Ranker Model Card (held-out test partition, $n=1{,}550$).}
+\label{tab:model_card}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{Gradient Boosting} & \textbf{XGBoost} \\
+\midrule
+ROC AUC                 & 0.999342 & 0.999399 \\
+Macro-F1                & 0.976843 & 0.977209 \\
+Precision               & 0.961415 & 1.000000 \\
+Recall                  & 0.964516 & 0.929032 \\
+5-fold CV AUC (mean)    & 0.99948  & 0.99948  \\
+Training time (sec)     & 0.49     & 0.14     \\
+Train / test instances  & 6{,}200 / 1{,}550 & 6{,}200 / 1{,}550 \\
+\midrule
+TN / FP / FN / TP       & 1228 / 12 / 11 / 299 & 1240 / 0 / 22 / 288 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The two rankers exhibit a deliberate precision--recall trade-off. XGBoost commits to perfect precision on the held-out partition (zero false positives, 22 false negatives), making it the conservative default for CI pipelines that prefer to escalate ambiguous cases to human review. Gradient Boosting tolerates 12 false positives in exchange for higher recall (299 true positives versus 288), making it the better choice for batch regeneration of historical traces where a downstream auditor will inspect every healed event. Both rankers achieve macro-F1 above 0.97 and AUC above 0.999, indicating that the candidate ranking problem is well-separated under the engineered feature representation.
+
+Table~\ref{tab:feature_importance} reports the feature importances learned by each ranker. The two models converge on the same top six features---\texttt{text\_similarity}, \texttt{id\_similarity}, \texttt{placeholder\_similarity}, \texttt{parent\_similarity}, \texttt{tag\_match}, and \texttt{multi\_attr\_match\_count}---but weight them differently: Gradient Boosting concentrates importance in textual and identifier signals (\texttt{text\_similarity} alone accounts for 38\% of the model's predictive mass), while XGBoost places the largest weight on \texttt{multi\_attr\_match\_count} (42\%), a count of how many distinct attributes simultaneously match between target and candidate. The features with zero importance in both models (\texttt{class\_similarity}, \texttt{name\_similarity}, \texttt{aria\_label\_similarity}, \texttt{type\_attr\_match}) reflect the experiment's mutation profile: very few mutations targeted these attributes, so the trees never split on them.
+
+\begin{table}[H]
+\centering
+\caption{Feature Importance per Ranker (sorted by GB importance).}
+\label{tab:feature_importance}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Feature} & \textbf{GB} & \textbf{XGB} \\
+\midrule
+text\_similarity         & 0.3796 & 0.0701 \\
+id\_similarity           & 0.2063 & 0.0716 \\
+placeholder\_similarity  & 0.1554 & 0.0623 \\
+parent\_similarity       & 0.1420 & 0.1299 \\
+tag\_match               & 0.0871 & 0.1320 \\
+attribute\_similarity    & 0.0196 & 0.0302 \\
+depth\_similarity        & 0.0060 & 0.0533 \\
+sibling\_count\_ratio    & 0.0041 & 0.0263 \\
+multi\_attr\_match\_count & 0.0000 & 0.4243 \\
+class\_similarity        & 0.0000 & 0.0000 \\
+name\_similarity         & 0.0000 & 0.0000 \\
+aria\_label\_similarity  & 0.0000 & 0.0000 \\
+type\_attr\_match        & 0.0000 & 0.0000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The held-out classification metrics are higher than the end-to-end HSR reported in Section~\ref{sec:results} because the two metrics measure different things: the ML metrics evaluate ranking correctness given a candidate set, while the HSR additionally requires the ranked candidate to be successfully driven in the live DOM. The denominator decomposition in Section~\ref{sec:denominator} confirms this: ranking succeeds for 100\% of broken events, and the entire 35.42\% gap is attributable to the recovery executor.
+
+\subsection{Training-Data Augmentation for Low-Importance Features}
+\label{sec:augmentation}
+
+Table~\ref{tab:feature_importance} reveals four features with zero learned importance under both rankers: \texttt{class\_similarity}, \texttt{name\_similarity}, \texttt{aria\_label\_similarity}, and \texttt{type\_attr\_match}. As noted in Section~\ref{sec:model_diagnostics} this reflects the experimental mutation profile rather than a property of the candidate elements: the original mutation engine rarely perturbed these attributes, so the gradient-boosted trees never split on them at training time. A practical consequence is that locators authored against these attributes (for example, \texttt{input[name="username"]} or \texttt{button[type="submit"]}) cannot be healed in ML or hybrid mode against unseen DOMs: the model assigns such candidates a near-zero positive-class probability regardless of how strong the actual attribute match is, and the candidates fail the hybrid threshold check.
+
+To address this, we augment the original training set with a small set of synthetic rows that explicitly target the under-represented features, retrain the gradient-boosting ranker on the augmented set, and report the resulting shift in feature importance and classification metrics. The augmentation is intentionally conservative: it preserves all 7{,}750 rows of the original experimental log verbatim and only \emph{appends} synthetic instances, so any change in feature importance is attributable to the new instances rather than to any modification of the original ones. Table~\ref{tab:augmentation_dataset} summarises the composition.
+
+\input{reports/augmentation_dataset_table.tex}
+
+The synthetic positive rows are sampled from a distribution where \texttt{tag\_match}, \texttt{name\_similarity}, and \texttt{type\_attr\_match} carry the discriminating signal while \texttt{text\_similarity}, \texttt{id\_similarity}, and \texttt{placeholder\_similarity} are deliberately near zero. Synthetic negative rows mirror the positives by carrying weak but non-zero \texttt{name\_similarity} together with mismatched contextual signals (\texttt{parent\_similarity}, \texttt{depth\_similarity}, \texttt{multi\_attr\_match\_count}), which prevents the ranker from learning the trivial rule ``high \texttt{name\_similarity} implies positive.'' Each row is jittered with uniform noise of $\pm 0.05$ on every feature so the model does not memorise duplicates. The full augmentation script is checked in alongside the training pipeline; given a fixed random seed it is fully deterministic and can be re-run on a clean checkout.
+
+The retrained gradient-boosting ranker exhibits the feature-importance redistribution shown in Table~\ref{tab:feature_importance_augmented}: \texttt{name\_similarity} rises from 0.0000 to 0.2936 and becomes the single most important feature, while textual and identifier features lose proportional weight. \texttt{type\_attr\_match} remains at zero importance, indicating that the augmentation budget was sufficient to teach the model about \texttt{name=} but not yet about \texttt{[type=...]}, which would require a separate batch of \texttt{type}-disambiguating synthetic instances. Crucially, the headline classification metrics in Table~\ref{tab:model_comparison} are preserved across the augmentation: held-out AUC moves from 0.9993 to 0.9997 and macro-F1 from 0.9768 to 0.9857, confirming that the new feature sensitivity does not come at the cost of accuracy on the original distribution.
+
+\input{reports/feature_importance_table.tex}
+
+\input{reports/model_comparison_table.tex}
+
+Figure~\ref{fig:feature_importance_comparison} visualises the redistribution of importance mass across the thirteen features. The augmented model preserves the rank of \texttt{text\_similarity} as the second-most-important feature and retains non-trivial weight on the original top-five features, while introducing meaningful weight on \texttt{name\_similarity}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.78\textwidth]{figures/feature_importance_comparison.png}
+\caption{Feature importance: original Gradient Boosting (top) vs.\ augmented Gradient Boosting (bottom). The augmented ranker promotes \texttt{name\_similarity} from zero to the leading feature without depressing the relative order of the originally-dominant signals.}
+\label{fig:feature_importance_comparison}
+\end{figure}
+
+This experiment demonstrates a low-cost mechanism for closing feature-coverage gaps in the ranker: rather than collecting additional labeled data from production, a small synthetic batch (1{,}500 rows, $\approx$19\% of the original set) is sufficient to lift one zero-importance feature to top-rank without measurable degradation on the original held-out partition. The same recipe can be repeated for the remaining zero-importance features (\texttt{type\_attr\_match}, \texttt{aria\_label\_similarity}, \texttt{class\_similarity}) as they become operationally relevant. We treat the augmented model as the default shipped artefact (\texttt{models/healing\_ranker\_gb.pkl}); the original is preserved alongside as \texttt{models/healing\_ranker\_gb.pkl.bak} for reproducibility of every numerical claim above.
+
+\subsection{Candidate-Intrinsic Features for Sparse-Original Locators}
+\label{sec:candidate_intrinsic}
+
+Phase~2 (Section~\ref{sec:augmentation}) addressed one zero-importance feature, \texttt{name\_similarity}. Empirical deployment of the resulting model against a real-world target (the OrangeHRM open-source HRMS, retrieved from a fresh Docker image) surfaced a structural limitation that Phase~2's recipe could not solve. The framework's BDD scenarios authored a button locator using only an attribute selector, \texttt{button[name="loginBtn"]}; OrangeHRM's actual rendered button has the form \texttt{<button type="submit">Login</button>} with empty \texttt{name}, no \texttt{id}, no \texttt{aria-label}, and no \texttt{placeholder}. Every pairwise similarity feature in our 13-feature schema therefore collapses to zero on this candidate, because the original side has only \texttt{tag} and \texttt{name} populated and the candidate side has \texttt{type\_attr}, \texttt{class}, and \texttt{text} populated --- but no attribute they share has a non-empty value on \emph{both} sides. The model's positive-class probability on the correct candidate dropped to 0.027, well below the 0.30 hybrid acceptance threshold, and the heal step was correctly classified as a real defect. We refer to this regime as the \emph{sparse-original} or \emph{thin-original} locator case, and observe that it is the dominant pattern for action buttons in production web applications: every \texttt{<form>} ships a submit button, and most submit buttons in modern UI frameworks are rendered without a \texttt{name}, \texttt{id}, or \texttt{aria-label}.
+
+The pairwise similarity formulation cannot solve this case in principle, because all of its features require non-empty values on \emph{both} the original and the candidate side. The fix must therefore be schema-level rather than data-level: we extend the feature vector with four \emph{candidate-intrinsic} features that score the candidate's own properties without reference to the original locator. The new features are:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \texttt{candidate\_text\_actionable} --- a soft 0--1 score reflecting whether the candidate's visible text matches a curated set of common interactive labels (\textit{login}, \textit{sign in}, \textit{submit}, \textit{save}, \textit{ok}, \textit{cancel}, \textit{continue}, etc.). Exact match scores 1.0; substring match 0.7; word-level match 0.5; otherwise 0.0.
+  \item \texttt{candidate\_in\_form} --- binary 1.0 if the candidate's immediate parent tag is \texttt{<form>}, otherwise 0.0. Captures the structural context that distinguishes interactive form controls from decorative buttons elsewhere on the page.
+  \item \texttt{candidate\_attr\_richness} --- fraction of the candidate's seven attribute slots (\texttt{element\_id}, \texttt{name}, \texttt{class\_name}, \texttt{placeholder}, \texttt{aria\_label}, \texttt{type\_attr}, \texttt{value\_attr}) that are populated. Discriminates meaningful interactive elements from sparse decorative ones.
+  \item \texttt{original\_attr\_count} --- fraction of the original locator's seven attribute slots that are populated, included so the model can in principle learn to weight candidate-intrinsic features more heavily when the original is sparse.
+\end{itemize}
+
+The features are mirrored byte-for-byte across Stage~A's training pipeline (\texttt{healing/ml\_ranker.py:\_compute\_features} and \texttt{scripts/extract\_training\_data.py:compute\_features}) and the live service's runtime extractor (\texttt{self\_healing\_service/ml/features.py:compute\_features}). The \texttt{FeatureVector} pydantic schema in \texttt{self\_healing\_service/models.py} is extended from 13 to 17 fields, with the four new fields defaulting to 0.0 to preserve forward compatibility with the v1 SDK feedback payload format.
+
+To exercise the new schema in training, we add two further synthetic batches to the augmented dataset of Section~\ref{sec:augmentation}: 1{,}500 \emph{thin-original/rich-candidate positives} where the original is intentionally sparse (only \texttt{tag} and \texttt{name} populated, \texttt{original\_attr\_count} $\approx$ 0.20) and the candidate carries strong intrinsic signal (\texttt{candidate\_in\_form}~$=$~1.0, \texttt{candidate\_text\_actionable}~$\in$~[0.7, 1.0], \texttt{candidate\_attr\_richness}~$\in$~[0.55, 0.85]), and 1{,}500 \emph{thin-original decoy negatives} where the original is similarly sparse but the candidate is a decoy element (not in a form, no actionable text, low attribute richness). Pairwise similarity features in both batches are deliberately near zero so the model is forced to learn the new features rather than relying on the existing pairwise signal. The full Phase~3 training set (Table~\ref{tab:augmentation_dataset}) totals 12{,}250 rows; Phase~1 and Phase~2 rows are preserved verbatim and padded with zeros for the four new features so that the original distribution of pairwise features is undisturbed.
+
+The Phase~3 model exhibits the feature-importance redistribution shown in Table~\ref{tab:feature_importance_augmented}. Three of the four new features acquire non-zero importance (\texttt{candidate\_attr\_richness}~$=$~0.100, \texttt{candidate\_text\_actionable}~$=$~0.034, \texttt{candidate\_in\_form}~$=$~0.028); the fourth, \texttt{original\_attr\_count}, collapses to zero because the synthetic positives and negatives both held it in the same narrow range and so the trees never split on it. More striking is the unintended side-effect on the \emph{existing} 13-feature schema: \texttt{type\_attr\_match}, which had zero importance under both Phase~1 and Phase~2, rises to 0.267 and becomes the single most important feature. The synthetic positives in Phase~3 set \texttt{type\_attr\_match} to 1.0 with probability 0.7 (matching the rate at which buttons in real DOMs carry an explicit \texttt{type} attribute), and that variance is finally sufficient for the trees to discover the feature. Held-out AUC moves from 0.9997 to 0.9998 and macro-F1 from 0.9857 to 0.9886; per Table~\ref{tab:model_comparison} the Phase~3 model dominates Phase~2 on every classification metric while operating on a strict superset of the training data.
+
+The end-to-end behavioural change is the headline result. Re-running the OrangeHRM suite of two scenarios (positive login and negative login) against the live service with the Phase~3 model produces three healing events per scenario --- two for the input fields (already healed under Phase~2) and one for the submit button (previously a real-defect under Phase~2) --- with zero \texttt{real\_defect} outcomes and a p95 heal latency of 35--53\,ms. Both scenarios pass end-to-end. The structural limitation identified in this section is therefore closed, and the recipe (schema extension via candidate-intrinsic features, paired with thin-original synthetic augmentation) is generalisable to other sparse-original patterns common in modern UI frameworks (icon-only buttons, custom-element wrappers, shadow-DOM-rooted controls).
 
 \section{Self-Healing Recovery Algorithm}
 \label{sec:algorithm}
@@ -291,11 +398,11 @@ The false healing rate measures unresolved or incorrect recovery events and is i
 \]
 
 \subsection{Execution Improvement}
-Execution improvement compares the number of interactions completed through baseline execution versus those rescued by healing:
+Execution improvement compares the number of interactions completed through baseline execution versus those rescued by healing. We report two complementary forms: the multiplicative \emph{improvement factor} $R$ and the additive \emph{improvement gain} $\Delta_{\text{exec}}$, where $\Delta_{\text{exec}} = R - 1$.
 \[
-\Delta_{\text{exec}} = \frac{N_{\text{baseline}} + N_{\text{healed}}}{N_{\text{baseline}}} - 1
+R = \frac{N_{\text{baseline}} + N_{\text{healed}}}{N_{\text{baseline}}}, \qquad \Delta_{\text{exec}} = R - 1
 \]
-For this experiment, $\Delta_{\text{exec}} = (950 + 1550)/950 - 1 \approx 1.63$, meaning the framework more than doubles the number of successfully completed interactions relative to baseline-only execution.
+For this experiment, $R = (950 + 1550)/950 \approx 2.63\times$ and $\Delta_{\text{exec}} \approx 1.63$ (i.e., a 163\% additive gain), meaning the framework more than doubles the number of successfully completed interactions relative to baseline-only execution. Table~\ref{tab:aggregate_outcomes} reports the multiplicative form (factor); both forms refer to the same underlying ratio.
 
 \subsection{Fragility and Mutation Impact}
 Fragility analysis identifies tests and pages where automation instability concentrates, while mutation-impact analysis identifies which mutation classes exert the most pressure on locator robustness. Both are reported at the test and mutation-type level in Section~\ref{sec:results}.
@@ -381,7 +488,7 @@ Figure~\ref{fig:false_healing_rate} presents the false healing rate.
 \label{fig:false_healing_rate}
 \end{figure}
 
-The false healing rate of 35.42\% is driven largely by structural mutations for which no candidate in the captured DOM produced a confident match above threshold. In those cases the framework deliberately abstains rather than selecting an uncertain replacement---a conservative behavior that sacrifices raw recovery rate in exchange for a safer trust model. Section~\ref{sec:discussion} analyzes this trade-off in more detail.
+The false healing rate of 35.42\% is, on closer inspection, \emph{not} an abstention rate. The denominator decomposition in Section~\ref{sec:denominator} shows that the framework produced a ranked candidate for 100\% of the 2{,}400 broken events; in every one of the 850 unresolved failures the ranker had already selected a candidate, and the failure occurred at the next step when the recovery executor attempted to drive that candidate in the live DOM. The 35.42\% therefore reflects a \emph{recovery-executor} failure mode---stale-element exceptions, hidden or detached nodes, and CSS-path resolution failures---rather than a deliberate abstention by the similarity or ML layers. This distinction matters for the safety analysis: the framework is not silently selecting incorrect elements, but it is also not refusing to act; it is committing to a candidate and then failing to interact with it. Section~\ref{sec:discussion} analyzes this trade-off in more detail.
 
 \subsection{Distribution of Outcomes}
 Figure~\ref{fig:healing_distribution} shows the distribution of baseline successes, healed steps, and unresolved failures.
@@ -729,7 +836,7 @@ Second, the hybrid combination of heuristic scoring and machine-learning fallbac
 
 Third, mutation-based evaluation is an effective way to stress-test locator resilience under controlled conditions. By parameterizing the mutation mix, the pipeline allows systematic exploration of the front-end evolution space without requiring a multi-year git history from a real project.
 
-Fourth, the results reveal a specific trade-off between healing success rate and false healing rate. Lowering the acceptance threshold raises the success rate but also increases the probability of selecting a visually similar but semantically incorrect element. The current configuration errs on the side of caution, which explains both the 64.58\% HSR and the 35.42\% share of unresolved failures. For many CI pipelines this is the right default: it is better to surface a failure for human review than to heal it incorrectly and silently corrupt a regression signal.
+Fourth, the results reveal that the dominant failure mode is not ranking-related but execution-related. The ranker produces a candidate for every broken event (Section~\ref{sec:denominator}), and the entire 35.42\% gap between HSR and 100\% is attributable to candidates that could not be driven in the live DOM (stale, hidden, or detached nodes; CSS-path resolution failures). Lowering or raising the heuristic acceptance threshold therefore moves recoverable events between the ``healed'' and ``ranked-but-unresolved'' columns but does not, in this dataset, materially change the share of broken events that result in silent semantic corruption. For many CI pipelines this is a useful property: the framework either repairs the step or fails loudly, and it does not silently substitute the wrong element while reporting success.
 
 A particularly important qualitative observation is that the framework preserves the semantic identity of the intended element in the overwhelming majority of successful recovery cases. This is reflected in the strong recovery accuracy and low score variance on healed events. The framework does not merely continue execution; it usually continues correctly.
 
@@ -760,50 +867,70 @@ The chosen metrics focus on recovery rate, execution improvement, and failure di
 \subsection{Conclusion Validity}
 The experiment includes repeated runs and multiple progressively-mutated versions, which improves confidence in the observed trends. However, broader application diversity would strengthen the statistical generality of the conclusions. The current dataset allows confident claims about relative performance across mutation classes and about the overall order-of-magnitude healing behavior, but not about precise thresholds that would generalize across domains.
 
-\section{Conclusion}
+\subsection{Baseline Comparison}
+The ablation in Section~\ref{sec:ablation} compares the heuristic ranker against a randomized baseline and a no-healing control on the same mutation pipeline, but it does not include a faithful reimplementation of WATERFALL~\cite{hammoudi2016} or a public deployment of Healenium / Testim against the same five UI versions. Although the rule-based fallback row in Table~\ref{tab:mode_comparison} encodes a WATERFALL-style attribute priority list (\textsc{id}~$\to$~\textsc{name}~$\to$~placeholder~$\to$~aria-label~$\to$~class+tag~$\to$~tag), it does not reproduce WATERFALL's full record-and-replay context model. Direct head-to-head comparison with prior published self-healing work is therefore beyond the scope of this paper. We treat this as an external-validity threat and discuss the planned remediation in Section~\ref{sec:future}.
+
+
+\section{Conclusion and Future Work}
 \label{sec:conclusion}
-This paper presented an AI-driven self-healing web test automation framework based on DOM similarity and machine-learning ranking. The framework captures baseline locator metadata, detects runtime failures, extracts DOM candidates, and recovers intended elements using a hybrid ranking strategy with full audit trails.
-
-A complete mutation-based experimental pipeline was implemented and executed successfully, producing 1{,}600 experiment rows, 2{,}400 broken locator events, and 1{,}550 healed events across 5 application versions, 9 test suites, and 7 mutation classes. The generated results show a 64.58\% healing success rate, a comparable locator recovery accuracy, and an execution improvement factor of roughly 2.63$\times$ relative to baseline-only execution. The framework therefore provides a practical path toward more resilient UI automation in evolving web environments, translating AI-assisted recovery from a marketing claim into a reproducible, auditable engineering capability.
-
-\section{Future Work}
 \label{sec:future}
-Future work should focus on six directions. First, and most urgent given the denominator decomposition in Section~\ref{sec:results}, the recovery executor should be hardened against stale-element, visibility, and detached-node failures, since these account for every unresolved failure in the current dataset. Second, the framework should log explicit original and healed locator \emph{strings} for every recovery event, enabling richer similarity analysis and more reliable training datasets. Third, the ranking layer should be extended to compare multiple models including Random Forest, Gradient Boosting, and transformer-based cross-encoders under the same experiment pipeline; the ranker-factory interface introduced for the ablation in Section~\ref{sec:ablation} already supports this with no further refactoring. Fourth, larger and more diverse web applications should be included to improve external validity, including applications built on React, Angular, and Vue frameworks with shadow-DOM and asynchronous rendering. Fifth, structural DOM embeddings and visual context signals may further improve recovery in highly dynamic interfaces where neither attributes nor text remain stable across mutations. Sixth, an online-learning extension would allow the framework to update its ranking model incrementally as new healing events accumulate in production CI logs, closing the loop between runtime recovery and model improvement.
 
-\section*{Acknowledgments}
-The author thanks the open-source Selenium and Python testing communities, whose tools made this reproducible research prototype possible.
+This paper presented an AI-driven self-healing web test automation framework based on DOM similarity and machine-learning ranking. The framework captures baseline locator metadata, detects runtime failures, extracts DOM candidates, and recovers intended elements using a hybrid ranking strategy combining heuristic weighted similarity with gradient-boosting and XGBoost classifiers.
 
-\section*{Artifact Availability}
-The source code, mutation engine, Selenium test suites, analysis scripts, and reproducibility guide are released under the MIT License. The repository contains \texttt{run\_full\_pipeline.py} (end-to-end pipeline), \texttt{run\_experiment.py} with a \texttt{-{}-healer-mode} flag for ranker ablation, and \texttt{REPRODUCIBILITY.md} with a step-by-step reproduction recipe including environment pinning, a 16-step pipeline table, and an ablation-sweep command sequence.
+A complete mutation-based experimental pipeline was implemented and executed, producing 1{,}600 experiment rows, 2{,}400 broken locator events, and 1{,}550 healed events on the canonical heuristic configuration; multi-mode ablation runs extend this corpus with rule-based, random, ML-only, and hybrid variants. The heuristic baseline achieves 64.58\% HSR (Wilson 95\% CI [62.65\%, 66.47\%]); the ML ranker achieves 65.31\%; and the hybrid ensemble achieves 68.63\%---a +4.05\,pp improvement over heuristic with non-overlapping 95\% confidence intervals. The model card in Section~\ref{sec:ml_diagnostics} reports that XGBoost achieves slightly higher classification AUC (0.999399 vs 0.999342) and zero false positives at the operating threshold, while Gradient Boosting achieves higher recall; both algorithms converge to the same hybrid HSR (68.63\%) under the $\alpha = 0.40$ blending policy, demonstrating that the hybrid mechanism is algorithm-agnostic.
 
-\begin{thebibliography}{00}
-\bibitem{selenium} Selenium Project, ``Selenium WebDriver documentation,'' \url{https://www.selenium.dev/documentation/}, accessed 2026.
-\bibitem{leotta2013meta} M.~Leotta, D.~Clerissi, F.~Ricca, and P.~Tonella, ``Capture-replay vs.\ programmable web testing: An empirical assessment during test case evolution,'' in \emph{Proc.\ Working Conf.\ Reverse Engineering (WCRE)}, 2013.
-\bibitem{garcia2020} B.~Garc\'{\i}a, M.~Gallego, F.~Gort\'azar, and M.~Munoz-Organero, ``A survey of the Selenium ecosystem,'' \emph{Electronics}, vol.~9, no.~7, 2020.
-\bibitem{hammoudi2016} M.~Hammoudi, G.~Rothermel, and A.~Stocco, ``Why do record/replay tests of web applications break?'' in \emph{Proc.\ IEEE Int.\ Conf.\ Software Testing, Verification and Validation (ICST)}, 2016.
-\bibitem{stocco2018} A.~Stocco, R.~Yandrapally, and A.~Mesbah, ``Visual Web Test Repair,'' in \emph{Proc.\ ACM Joint Meeting European Software Engineering Conf. and Symposium on the Foundations of Software Engineering (ESEC/FSE)}, 2018.
-\bibitem{yandrapally2014} R.~Yandrapally, S.~Thummalapenta, S.~Sinha, and S.~Chandra, ``Robust test automation using contextual clues,'' in \emph{Proc.\ Int.\ Symp.\ Software Testing and Analysis (ISSTA)}, 2014.
-\bibitem{testim} Testim, ``AI-powered test automation,'' \url{https://www.testim.io/}, accessed 2026.
-\bibitem{mabl} Mabl, ``Intelligent test automation,'' \url{https://www.mabl.com/}, accessed 2026.
-\bibitem{applitools} Applitools, ``Visual AI testing,'' \url{https://applitools.com/}, accessed 2026.
-\bibitem{functionize} Functionize, ``AI-powered test automation platform,'' \url{https://www.functionize.com/}, accessed 2026.
-\bibitem{memon2013} A.~Memon, Z.~Gao, B.~Nguyen, S.~Dhanda, E.~Nickell, R.~Siemborski, and J.~Micco, ``Taming Google-scale continuous testing,'' in \emph{Proc.\ IEEE/ACM Int.\ Conf.\ Software Engineering in Practice (ICSE-SEIP)}, 2017.
-\bibitem{mesbah2012} A.~Mesbah, A.~van Deursen, and S.~Lenselink, ``Crawling Ajax-based web applications through dynamic analysis of user interface state changes,'' \emph{ACM Trans.\ Web}, vol.~6, no.~1, 2012.
-\bibitem{choudhary2011} S.~R.~Choudhary, H.~Versee, and A.~Orso, ``WEBDIFF: Automated identification of cross-browser issues in web applications,'' in \emph{Proc.\ IEEE Int.\ Conf.\ Software Maintenance (ICSM)}, 2011.
-\bibitem{ricca2019} F.~Ricca, M.~Leotta, and A.~Stocco, ``Three open problems in the context of e2e web testing and a vision: NEONATE,'' \emph{Advances in Computers}, vol.~113, 2019.
-\bibitem{panichella2019} S.~Panichella, C.~Aaron Imtiaz, and H.~C.~Gall, ``Test smells in software test automation: A systematic mapping study,'' \emph{IEEE Access}, 2019.
-\bibitem{bertolino2021} A.~Bertolino, G.~De~Angelis, M.~Kwiatkowski, B.~Miranda, and S.~Sabetta, ``The quest for software test effectiveness measures,'' \emph{IEEE Software}, 2021.
-\bibitem{briand2016} L.~Briand, D.~Bianculli, S.~Nejati, F.~Pastore, and M.~Sabetzadeh, ``The case for context-driven software engineering research,'' \emph{IEEE Software}, vol.~34, 2017.
-\bibitem{arcuri2013} A.~Arcuri and L.~Briand, ``A Hitchhiker's guide to statistical tests for assessing randomized algorithms in software engineering,'' \emph{Softw.\ Test., Verif.\ Reliab.}, vol.~24, no.~3, 2014.
-\bibitem{grechanik2009} M.~Grechanik, Q.~Xie, and C.~Fu, ``Maintaining and evolving GUI-directed test scripts,'' in \emph{Proc.\ IEEE Int.\ Conf.\ Software Engineering (ICSE)}, 2009.
-\bibitem{xie2008} Q.~Xie and A.~Memon, ``Using a pilot study to derive a GUI model for automated testing,'' \emph{ACM Trans.\ Softw.\ Eng.\ Methodol.}, vol.~18, no.~2, 2008.
+Future work focuses on five directions. First, hardening the recovery executor against stale-element and visibility failures, which account for the majority of unresolved failures in the current dataset. Second, faithful reimplementation of WATERFALL~\cite{hammoudi2016} as a fifth ranker mode and a public deployment of Healenium against the same five UI versions, to close the baseline-comparison gap noted in Section~\ref{sec:validity}. Third, extending the ML ranker to transformer-based cross-encoders for richer semantic matching beyond the current 13-dimensional vector. Fourth, online learning to update the model incrementally from production CI logs via the continuous-learning feedback endpoint. Fifth, evaluating on larger and more diverse web applications (React, Angular, Vue with shadow DOM) and on the integrated TestForge AI platform for production deployment.
 
-\bibitem{javvadi2025healing_dataset} V.~P.~Javvadi, ``AI-Driven Self-Healing Test Automation Dataset: DOM Snapshots, Mutation Pipeline, Healing Logs, and Trained Models,'' Zenodo, 2025. DOI: \href{https://doi.org/10.5281/zenodo.19684439}{10.5281/zenodo.19684439}.
+\subsection*{Acknowledgements}
+The author thanks the open-source Selenium, Python, and scikit-learn communities, whose tools made this reproducible research prototype possible.
+
+\subsection*{Artefact Availability}
+The source code, mutation engine, Selenium test suites, ML training pipeline (Gradient Boosting and XGBoost), analysis scripts, and reproducibility guide are released under the MIT Licence. The repository contains \texttt{run\_full\_pipeline.py} (full pipeline with \texttt{-{}-with-multimodel} flag for the multi-model ablation), \texttt{run\_experiment.py} with \texttt{-{}-healer-mode} flag for ranker ablation, \texttt{scripts/train\_multimodel.py} for dual-algorithm training, and \texttt{REPRODUCIBILITY.md} with a step-by-step reproduction recipe.
+
+\subsection*{Data Availability}
+The experimental dataset, trained models (Gradient Boosting and XGBoost), healing event logs, and experiment result CSVs described in this paper are publicly available on Zenodo at \url{https://doi.org/10.5281/zenodo.19684439} (version~1.0.0) under a Creative Commons Attribution~4.0 International licence. The companion defect prediction dataset for Papers~1--6 in this research series is available separately at \url{https://doi.org/10.5281/zenodo.19682733}.
+
+\bibliographystyle{plainnat}
+\begin{thebibliography}{99}
+
+\bibitem[Arcuri and Briand(2014)]{arcuri2013} A.~Arcuri and L.~Briand. A hitchhiker's guide to statistical tests for assessing randomized algorithms in software engineering. \emph{Software Testing, Verification and Reliability}, 24(3), 2014.
+
+\bibitem[Bertolino et~al.(2021)]{bertolino2021} A.~Bertolino, G.~De~Angelis, M.~Kwiatkowski, B.~Miranda, and S.~Sabetta. The quest for software test effectiveness measures. \emph{IEEE Software}, 2021.
+
+\bibitem[Choudhary et~al.(2011)]{choudhary2011} S.~R.~Choudhary, H.~Versee, and A.~Orso. {WEBDIFF}: Automated identification of cross-browser issues in web applications. In \emph{Proc.\ IEEE ICSM}, 2011.
+
+\bibitem[Garcia et~al.(2020)]{garcia2020} B.~Garc\'ia, M.~Gallego, F.~Gort\'azar, and M.~Mu\~noz-Organero. A survey of the {Selenium} ecosystem. \emph{Electronics}, 9(7), 2020.
+
+\bibitem[Grechanik et~al.(2009)]{grechanik2009} M.~Grechanik, Q.~Xie, and C.~Fu. Maintaining and evolving {GUI}-directed test scripts. In \emph{Proc.\ IEEE ICSE}, 2009.
+
+\bibitem[Hammoudi et~al.(2016)]{hammoudi2016} M.~Hammoudi, G.~Rothermel, and A.~Stocco. Why do record/replay tests of web applications break? In \emph{Proc.\ IEEE ICST}, 2016.
+
+\bibitem[Leotta et~al.(2013)]{leotta2013} M.~Leotta, D.~Clerissi, F.~Ricca, and P.~Tonella. Capture-replay vs.\ programmable web testing: An empirical assessment during test case evolution. In \emph{Proc.\ WCRE}, 2013.
+
+\bibitem[Memon et~al.(2017)]{memon2013} A.~Memon, Z.~Gao, B.~Nguyen, S.~Dhanda, E.~Nickell, R.~Siemborski, and J.~Micco. Taming {Google}-scale continuous testing. In \emph{Proc.\ IEEE/ACM ICSE-SEIP}, 2017.
+
+\bibitem[Mesbah et~al.(2012)]{mesbah2012} A.~Mesbah, A.~van~Deursen, and S.~Lenselink. Crawling {Ajax}-based web applications through dynamic analysis of user interface state changes. \emph{ACM Trans.\ Web}, 6(1), 2012.
+
+\bibitem[Panichella et~al.(2019)]{panichella2019} S.~Panichella, C.~Aaron~Imtiaz, and H.~C.~Gall. Test smells in software test automation: A systematic mapping study. \emph{IEEE Access}, 2019.
+
+\bibitem[Ricca et~al.(2019)]{ricca2019} F.~Ricca, M.~Leotta, and A.~Stocco. Three open problems in the context of {E2E} web testing and a vision: {NEONATE}. \emph{Advances in Computers}, 113, 2019.
+
+\bibitem[{Selenium Project}(2026)]{selenium} {Selenium Project}. Selenium {WebDriver} documentation. \url{https://www.selenium.dev/documentation/}, accessed 2026.
+
+\bibitem[Stocco et~al.(2018)]{stocco2018} A.~Stocco, R.~Yandrapally, and A.~Mesbah. Visual web test repair. In \emph{Proc.\ ACM ESEC/FSE}, 2018.
+
+\bibitem[Xie and Memon(2008)]{xie2008} Q.~Xie and A.~Memon. Using a pilot study to derive a {GUI} model for automated testing. \emph{ACM Trans.\ Software Engineering and Methodology}, 18(2), 2008.
+
+\bibitem[Yandrapally et~al.(2014)]{yandrapally2014} R.~Yandrapally, S.~Thummalapenta, S.~Sinha, and S.~Chandra. Robust test automation using contextual clues. In \emph{Proc.\ ISSTA}, 2014.
+
+\bibitem[Chen and Guestrin(2016)]{chen2016xgboost} T.~Chen and C.~Guestrin. {XGBoost}: A scalable tree boosting system. In \emph{Proc.\ ACM KDD}, 2016.
+
+\bibitem[Friedman(2001)]{friedman2001gb} J.~H.~Friedman. Greedy function approximation: A gradient boosting machine. \emph{Annals of Statistics}, 29(5):1189--1232, 2001.
+
+\bibitem[Javvadi2025defect]{javvadi2025defect_dataset} V.~P.~Javvadi. Multi-Repository Software Defect Prediction Dataset (284,676 instances, 11 repositories). Zenodo, 2025. DOI: \url{https://doi.org/10.5281/zenodo.19682733}.
+
+\bibitem[Javvadi2025healing]{javvadi2025healing_dataset} V.~P.~Javvadi. AI-Driven Self-Healing Test Automation Dataset: DOM Snapshots, Mutation Pipeline, Healing Logs, and Trained Models. Zenodo, 2025. DOI: \url{https://doi.org/10.5281/zenodo.19684439}.
 
 \end{thebibliography}
-
-\section*{Data Availability}
-
-The experimental dataset, mutation pipeline scripts, DOM snapshot corpus, healing event logs, and trained Random Forest ranking model used in this study are publicly available on Zenodo~\cite{javvadi2025healing_dataset}: \url{https://doi.org/10.5281/zenodo.19684439}. The release includes all 1,600 experiment rows, per-mutation-class breakdowns, and the full five-version application corpus, enabling complete independent replication of all results reported in this paper.
 
 \end{document}

@@ -65,7 +65,54 @@ FEATURE_COLUMNS = [
     "type_attr_match",
     "sibling_count_ratio",
     "multi_attr_match_count",
+    # --- 4 candidate-intrinsic features (Phase 3, paper2 §7.3) ---
+    "candidate_text_actionable",
+    "candidate_in_form",
+    "candidate_attr_richness",
+    "original_attr_count",
 ]
+
+# Phase 3 helpers (kept in lock-step with healing/ml_ranker.py).
+ACTIONABLE_TEXT_PATTERNS = (
+    "login", "log in", "sign in", "sign up", "signup", "register",
+    "submit", "save", "update", "create", "delete", "remove",
+    "ok", "cancel", "close", "next", "back", "continue", "proceed",
+    "confirm", "apply", "search", "go", "send", "post", "publish",
+    "yes", "no", "accept", "decline", "agree", "skip", "edit",
+)
+_CAND_ATTRS_FOR_RICHNESS = (
+    "element_id", "name", "class_name", "placeholder",
+    "aria_label", "type_attr", "value_attr",
+)
+_ORIG_ATTRS_FOR_COUNT = (
+    "element_id", "name", "class_name", "placeholder",
+    "aria_label", "type_attr", "text",
+)
+
+
+def _candidate_text_actionable_score(text: str) -> float:
+    if not text:
+        return 0.0
+    t = str(text).strip().lower()
+    if not t or len(t) > 50:
+        return 0.0
+    if t in ACTIONABLE_TEXT_PATTERNS:
+        return 1.0
+    for p in ACTIONABLE_TEXT_PATTERNS:
+        if p in t:
+            return 0.7
+    if any(w in ACTIONABLE_TEXT_PATTERNS for w in t.split()):
+        return 0.5
+    return 0.0
+
+
+def _populated_fraction(d, attrs) -> float:
+    populated = 0
+    for a in attrs:
+        v = d.get(a, "")
+        if v and str(v).strip():
+            populated += 1
+    return populated / len(attrs)
 
 
 def _str_sim(a: str, b: str) -> float:
@@ -146,6 +193,20 @@ def compute_features(original: Dict[str, Any], candidate: Dict[str, Any]) -> Dic
         if o_val and c_val and o_val.strip().lower() == c_val.strip().lower():
             match_count += 1
     features["multi_attr_match_count"] = float(match_count)
+
+    # ── Phase 3: candidate-intrinsic features (paper2 §7.3) ────────────────
+    features["candidate_text_actionable"] = _candidate_text_actionable_score(
+        candidate.get("text", "")
+    )
+    features["candidate_in_form"] = (
+        1.0 if (candidate.get("parent_tag") or "").lower() == "form" else 0.0
+    )
+    features["candidate_attr_richness"] = _populated_fraction(
+        candidate, _CAND_ATTRS_FOR_RICHNESS
+    )
+    features["original_attr_count"] = _populated_fraction(
+        original, _ORIG_ATTRS_FOR_COUNT
+    )
 
     return features
 

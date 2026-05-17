@@ -1,17 +1,19 @@
 \begin{table}[H]
 \centering
-\caption{Model Comparison: Gradient Boosting vs.\ XGBoost on Healing Candidate Classification}
+\caption{Model comparison across three generations of the gradient-boosting healing ranker. Phase~1 is the original 13-feature model. Phase~2 (paper2 §7.2) augments the training set with 1{,}500 name-heavy rows to lift \texttt{name\_similarity}. Phase~3 (paper2 §7.3) extends the schema to 17 features by adding four candidate-intrinsic features and adds 1{,}500 thin-original rows. Held-out classification metrics are preserved or improved across all three iterations, and Phase~3 unlocks healing of sparse-original locators (e.g.\ \texttt{button[type="submit"]}) which the earlier models could not score.}
 \label{tab:model_comparison}
-\begin{tabular}{lcc}
+\begin{tabular}{lcccc}
 \toprule
-Metric & Gradient Boosting & XGBoost \\
+Metric & \textbf{Phase~1 GB} & XGBoost & \textbf{Phase~2 GB} & \textbf{Phase~3 GB} \\
 \midrule
-AUC (test) & 0.9993 & 0.9994 \\
-F1 (macro) & 0.9768 & 0.9772 \\
-Precision & 0.9614 & 1.0000 \\
-Recall & 0.9645 & 0.9290 \\
-CV AUC (5-fold) & 0.9995 $\pm$ 0.0000 & 0.9995 $\pm$ 0.0000 \\
-Training time (s) & 0.5 & 0.1 \\
+Feature schema    & 13 & 13 & 13 & \textbf{17} \\
+AUC (test)        & 0.9993 & 0.9994 & 0.9997 & \textbf{0.9998} \\
+F1 (macro)        & 0.9768 & 0.9772 & 0.9857 & \textbf{0.9886} \\
+Precision         & 0.9614 & 1.0000 & 0.9787 & \textbf{0.9832} \\
+Recall            & 0.9645 & 0.9290 & 0.9787 & \textbf{0.9857} \\
+CV AUC (5-fold)   & 0.9995 $\pm$ 0.0000 & 0.9995 $\pm$ 0.0000 & 0.9997 $\pm$ 0.0002 & \textbf{0.9998 $\pm$ 0.0003} \\
+Training instances & 6{,}200 & 6{,}200 & 7{,}400 & \textbf{9{,}800} \\
+Test instances    & 1{,}550 & 1{,}550 & 1{,}850 & \textbf{2{,}450} \\
 \bottomrule
 \end{tabular}
 \end{table}
